@@ -247,3 +247,8 @@ Side Notes -
 -If you create routes outside reasources you will need to give them names because you need those names. But you do have that functionality.
 -There's a way to restrict forms in the models. For example, if someone enters an empty form.
 
+For images - 
+<%=image_tag@post.photo_url, height: 300%>
+   Notice the helpers!
+
+You can also put a lot of this in JS through the assets JS folder. You can just put JS right in there and rails knows to look for it. Just create a .js file. Note, this will apply to all pages.
