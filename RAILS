@@ -1,0 +1,249 @@
+Ruby On Rails
+
+Rails is a web framework which makes Ruby easier. MVC.
+
+- Rails has great doccumentation, keep that in mind.
+
+1. Rails.new (and whatever you are creating for example blob)
+    Then you will see a whole bunch of crap that you can use.
+
+2. Rails has an app directory which we will spend a lot of time in. There's all kinds of important directories like public, views, images, views, models, database, ect. This is all created with each app.
+
+3. To run a server - rails server.
+
+4. Rails comes with so many different tools you can access via the terminal. Like running a server.
+     You can already go to localhost and see stuff. We have an app!
+5. We should not have to turn of the server really at all. You can keep doing things while it's running. Except when creating a model.
+
+posts = model
+post = route (we definded that in reasources)
+ - meaning when we are using post or @post it is pulling from routes. 
+ - When we referance post we are not refernecing the verb POST.
+ - You can always look through the names in rake to see what's going on.
+
+ Another thing to remember is posts = all posts and post = one post.
+
+ More things to remember - 
+   Index - all posts
+   Show - post
+
+MODEL 
+
+1. Setting up the model for our blog - 
+    rails generate model post title:text author:text content:text
+2. In the console you will see all these things that were created.
+3. This is all going to work with a database already - which is being made automatically.
+4. Before you can use these changes you need to migrate.
+    Migrate is kind of like the notification system as well. Rails will know when and what you migrated.
+    Kind of like commiting your changes.
+5. Then you can go into your app directory into models and see  something that looks like a typicall active record model. Post.rb
+6. We can also see out db migration that was created. 
+     This will show you everything you set up and did. 
+       When you run the migration it will create a table with the information you entered including some default stuff (like id).
+7. rake db:migrate (this will migrate)
+     rake is kind of like a task runner.
+       Now we see that it ran the migration and created the table.
+8. rails console - IRB
+     Post.create(title:"Pizza", author: "Ricki", content: "I like pizza")
+       this will create the post in the app!
+         We will even see how it gets added to the database (in the console.)
+9. Post.all will give us that post via the database (you will see that in the console as well.)
+10. A seed has also been generated for us automatically. So instead, you could have done this proccess in there as well. Just like we have been doing with databases.
+11. rake db:seed (seeds the database) - if you had added this post that way.
+12. rake -T will show you everything you can do with rake.
+13. It's nice to have things like Post.all to make sure your db is updating ect.
+
+ROUTES
+
+1. There's a ton of doccumentation in your routes file to teach you how to use it.
+2. config - router.rb
+3. reasources:post
+4. THIS JUST CREATED ALL OUR CRUD ROUTES!!!!!
+5. rake routes
+6. the rake routes will also show you all the posts that were created.
+7. PATCH updates put don't use it.
+8. It will also show you with controller and action it is linked too. 
+9. root 'posts#index' - that is your controller and action and tells the page we want to see all the posts when we go there.
+    You will get an error! There's a great error page which shows you a lot of great information.
+      The error is beacuse we do not have a controller yet.
+      You can also go into a REPEL straight from here.
+
+CONTROLLER
+1. Create postcontroller.rb
+     inside the app directory, inside controllers.
+2. Create that file - 
+    class PostController < ApplicationController
+      def index
+     end
+    end
+3. We are missing our views so there is still another error.
+4. Basically we have our route and our controller but now we need a view. The route /posts/ for to the controller #index which will go to a view. We know from our rake routes that '/' is posts#index
+
+VIEWS 
+1. In views, add a directory posts, add a file called index.html.erb
+     Basically the html file will be rendered into an erb.
+2. In the html file, you do not need to put in <html>,<body> because this index file goes into a bigger one. So you just do whatever basic stuff you want. Like an h1 and some erb stuff:
+  
+   <h1> This is a blog </h1>
+   <% @posts.each do |post| %> - you need the @ to pull the instance variable.
+   <h2><%= post.title %></h2>
+   post.author
+   post.content
+   <% end %>
+
+   This still wont work yet - we have to actually define all this.
+     Back to controller!
+       in def index -
+         @posts = Post.all
+           Anything you define as an instance variable gets past to your view via the erb.
+           This is telling it to pull all the posts.
+3. Now we have all our seeded posts all nicely laid out on our homepage!
+4. new.html.posts - to create a new post
+   
+    <%= form_for @post, url { action: 'create'} do |f| %>
+      form_for is a form helper
+      This is basically going to create a new form for creating a post.
+      Create is a command/method that was given to us.
+    <%= f.label :title %>
+    <%= f.text_field :title %>
+    You might need some line breaks to help things look nice.
+    <%= f.label :author %>
+    <%= f.text_field :author %>
+
+    <%= f.label :author %>
+    <%= f.text_area :author %> - area because we might have a lot more written.
+
+    <%= f.submit %>
+    end
+
+    form_for is going to create our form.
+    Go to /posts/new to see this but we have an error! Because we didn't put anything in our controller.
+
+    Controller - 
+      def new 
+        @post = Post.new
+      end
+
+     Now it will show up!
+ 
+ -Typically it is smart to create the controller as you need it because you might night end up using every route. Also it could get pretty confusing. Take it one step at a time.
+
+ - The controller is just setting up whatever you erb needs. Routers - just setting up your routes. So you need all three to work together. You have your route, you set up your controller, then go crazy in your erb.
+
+What happens when you hit 'submit'? 
+  NOTHING! Because we don't have that defined yet. 
+
+  def create 
+   @post = Post.create(post_params)
+   redirect_to post_path(@path) (you wont see it otherwise! You got to go back to the post page but you will only see the one you just created. It's not going back to '/posts' its really going to '/posts:id'). It just knows to do this.
+  end
+
+  private
+  def post_params
+    params.require(:post).permit(:title, :author, :content)
+  end
+  
+  (this always needs to be the last method because of the private key word)
+
+  - this is what is needed to allow for creating a post. 
+  - Also to keep things safe this is how you have to allow form's input to be set.
+  - We are just grabbing the params from our forms to create a post.
+  - Permit is needed to allow. It's something rails added for security purposes.
+  - This is kind of like in db how we use ? in the values and define the params outside so no one can fuck up our shit.
+
+  But this will not work just yet! Why? Because we do not have a show action.
+
+  def show
+    @post = Post.find_by(id: params[:id]) - going to find that one post by ID!
+  end
+
+  BUT we do not have a template AKA erb
+
+  show.html.erb -
+
+  <h2><%= @post.title %></h2>
+   @post.author
+   @post.content
+   <% end %>
+   - We only want one post this time because we want to see what we just created.
+
+Right now we only have the ability to access everything via the url so let's put in some links.
+ in index - 
+ <h2><%= link_to post.title, post_path(post) %></h2> -it's in an @post block so it doesn't need the @
+ <%= link_to 'Create a Post!', new post_path %>
+   this will create a link that allows us to view each post sepperatly when you click on the title + there is a create a post button at the buttom of the posts page.
+ 
+ In the create a post erb -
+ <%= link_to 'Cancle', posts_path %> this will take us back home
+
+ Show - 
+ <%= link_to 'back', posts_path %> takes us home
+ 
+DELETE -
+
+ Show erb - 
+ <%= link_to 'delete', post_path(@post), method: :delete%> - we already have the delete route. We know it's post because of the route names in our rake.
+
+This will not work! Why? 
+  Got to define the method. Back to controlloers.
+    def destory
+     @post = Post.find_by(id: params[:id])
+     @post.destroy
+     redirect_to posts_path /we have to go back to the home page.
+    end
+      this will actually destroy it from the database.
+
+UPDATE -
+
+1. We need a form that will allow us to update.
+   edit.html.erb
+
+    <%= form_for @post, url { action: 'update'} do |f| %>
+    <%= f.label :title %>
+    <%= f.text_field :title, value: @post.title %> - we have values because we are not creating we are updating
+    You might need some line breaks to help things look nice.
+    <%= f.label :author, value: @post.author %>
+    <%= f.text_field :author %>
+
+    <%= f.label :content %>
+    <%= f.text_area :content, value: @post.content %> - area because we might have a lot more written.
+
+    <%= f.submit %>
+    end  
+
+    <%= link_to the post page - page for that specific post. post_path(@post)
+
+   Controller -   
+   
+   def edit
+     @post = Post.find_by(id: params[:id])
+   end 
+
+   Won't work yet we got to put in our update.
+
+   def update 
+     @post = Post.find_by(id: params[:id])
+     @post.update(post_params) - allow it to be changed
+
+     redirect to that post
+   end
+
+   Now the only thing we are missing is a link! 
+
+   So head over to show.erb and add one in! 
+
+STYLE 
+
+1. Go in assets
+   This will also automaticall compile LESS and SASS
+
+2. Our stylesheet must be called posts.css so it automatically links.
+    You can also link in app.css but that has some other defaults to it.
+3. Go CSS crazy. You can add divs to the erbs for ids and such.
+ 
+Side Notes - 
+-Rails comes with Jquery.
+-When you run your server you can see all sorts of information about what is being included. Such at the Jquery thing.
+-If you create routes outside reasources you will need to give them names because you need those names. But you do have that functionality.
+-There's a way to restrict forms in the models. For example, if someone enters an empty form.
+
