@@ -4,7 +4,7 @@ Rails is a web framework which makes Ruby easier. MVC.
 
 - Rails has great doccumentation, keep that in mind.
 
-1. Rails.new (and whatever you are creating for example blob)
+1. Rails new (and whatever you are creating for example blog) - rails new blog then cd into that and open it. It will open automatically with the app directory.
     Then you will see a whole bunch of crap that you can use.
 
 2. Rails has an app directory which we will spend a lot of time in. There's all kinds of important directories like public, views, images, views, models, database, ect. This is all created with each app.
