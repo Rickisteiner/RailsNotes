@@ -252,3 +252,76 @@ For images -
    Notice the helpers!
 
 You can also put a lot of this in JS through the assets JS folder. You can just put JS right in there and rails knows to look for it. Just create a .js file. Note, this will apply to all pages.
+
+- There's so much database stuff we can do right from rails with active record. Changing tables, dropping tables. So much. Don't forget you can have tons seeded as well.
+
+- You should never ever change a migration file just keep making new ones every time you change. That's kind of how MVCs work.
+    if you fuck something up - use rake rollback to go back one.
+    migrate is how we update the db. Also how the models communicate with our databse. Our models are the first step in anything happening.
+
+
+FRIDAY RAILS PART 2:
+
+- Validation:
+      protects your db from taking in information that is incomplete or wrong. Like, from a form.
+     
+      In your class post in Active Record: (models)
+      
+      validates_length_of :content, :minimum => 3 (works by characters... so this is really tiny.)
+        This has an automatic error message when you try to submit the form
+      
+      validates :content, length: {
+        maximumL 5,
+        too_long: "NO WAY!"
+      }
+        Max also has a default error message but this specifies what that would be.
+      
+      validates :title, presence: true
+      validates :content, presence: true
+         So you are requiring those inputs to be filled before you submit and you are also defining the length of the content.
+
+      In our create in active record we check for the validations once it hits post.save.
+        
+        @post = Post.new(post_params)
+        if @post.save
+         redirect
+        else
+        render :new (this wont trigger a controller action. Meaning if we redirected, we would have a brand new post. This way, we basically are just re rendering our same form w/ input but adding the error msg. This the only way we can see the error message. So when that msg pops up really our whole page is re rendering.)
+      
+      In new.html.erb -
+        <ul>
+        <% @post.errors.full_message.each do |msg| %>
+          <li><%= msg %>
+        end
+          Basically we have to desplay our error message. Our errors go into an errors hash so we need to loop through that and pull that out.
+
+      AND because we did this, nothing will be added to the db. 
+      This is an Active Record thing that is not specific to Rails. Can be done in Sinatra.
+
+- Footer - 
+   You will notice in the automated html there is a yield :footer
+     So in your personal html files you can add in content_for :footer do (whatever stuff) and that tells Rails that wherever it sees yeild footer, do this. You would have to put it on each page. So you fo not have to have the footer on every page but if you want it, you have to pop it in everywhere.
+       This yeild applies to everything on html.
+
+- Bootstrap - 
+   You can insert all that stuff on that main html page where the yelds are. YAY!
+
+- Partials
+   Header example:
+   you need a _header.html.erb in the layout folder. This is called a partial.
+     then in your personal html pages you insert <%= render "layouts/header" %>
+
+   Basically, you can have code snippets all in your partials and then just keep rendering them onto your html pages. Which means you don't have to keep rewriting the same snippets. Also it's a good way to keep organized.
+
+   Another example: 
+     A generic form that can be used anywhere on our site! You just have to render it wherever it is needed. 
+     Like on a create and update page.
+
+Other Control Things:
+
+- In the controls you can also just send strings, html as a string, erb as a string.....AND JASON.
+    json_stuff = {key: "value"}
+    render j_son: json_stuff
+      AND BAM AND API
+
+
