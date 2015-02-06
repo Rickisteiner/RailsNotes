@@ -324,4 +324,150 @@ Other Control Things:
     render j_son: json_stuff
       AND BAM AND API
 
+PASSWORDS AND SESSIONS: 
+
+- New project.
+
+Route
+
+1. We are not creating routes through reasources.
+   In routes.rb: 
+     get '/login' => 'session#new'
+       session = controller
+       new = action
+
+Controller 
+
+1. session_controller.rb
+  
+   class SessionController < ApplicationController
+     def new
+      render :new - going to render a new view
+     end
+   end
+
+View
+
+1. Session directory 
+
+2. new.html.erb:
+  
+  create a form with action '/session' and method="POST"
+  <label for ="password">
+  password:
+  </label>
+  input for password
+  <input name="authenticity_token" value = "<%= form_authenticity_token() %>"
+   type = "hidden">
+  button
+  end form
+
+  the authenticity_token is needed in order to have a session and the erb part is a helper from rails.
+
+Back to the controller! 
+
+  def create
+    if params[:password] == Rails.application.secrets.secret_password
+    session[:valid_user] = true
+    redirect_to '/secret'
+  else 
+    render :new AKA back to login page
+  end
+
+  Rails by default has a secrets file and has a session helper.
+
+YAML - Yet Another Markup Language
+  Sort of like JSON.
+  Keys and Values
+  This is how the secrets file works.
+
+In the secrets file you add in your secret_password
+  secret_password: peaches
+
+NOTE - if you are going to use a secrets file you need still add it to a .gitignore
+   We do have a .gitignore already provided to us! YAY!
+
+Back to routes!
+   We have do add a route for secrets.
+
+   Also there needs to be a route for session create
+
+Back to controller!
+  secret_controller.rb
+
+  def show 
+    valid_user = session[:valid_user]
+    if value_user
+      render :show
+    else
+      redirect_to '/login'
+    end
+
+What are cookies?
+  file that gets places on your computer for each site that you go to. We are actually creating cookies by doing this.
+
+Don't forget to have a message in a secret.html.erb file!
+  Remember, you can only access the secret page if you are logged in. 
+  ALSO, since this is a cookie even if we close the browser we can still acess it even when you restart the browser... because COOKIES.
+
+Logout / End Session
+
+In the secrets page - 
+  We set up a logout along with the log out you need to have the same session info to end the session. 
+
+Then we need a destroy method
+  def destory
+    reset_session (ends the session)  
+    redirect to login
+  end
+
+BCRYPT
+
+Bcrypt comes with rails - check the gems folder and uncomment it.
+
+1. rails generate model User username:text passoword_digest:text
+    We now need a model! 
+    this is all what's needed to encrypt passwords.
+
+Model: 
+  Add in - 
+   has_secure_password
+     this is added to active record by bycrpt and allows us to encrypt the password.
+       a method that bcrypt adds we just have to call it.
+
+don't forget to migrate! 
+
+In rails console -
+  create a user and password and notice that when the console spits the info back out the password is encrypted!
+  User.create(username: "ricki", password: "peaches")
+In model -
+  validates_uniqueness_of :username
+    this is how to test if the username is unique!
+      now try adding a user with the same username, you will get an error message!
+
+You really should do this create in the seed file and run rake db:seed. But, it's nice to see it working.
+
+In new.html.erb:
+  you add in a new <label> and input for unsername
+
+In the session controller we have to change our create:
+  user = User.find_by(username: params[:username])
+  if user && user.authenticate(params[:password]) - if there is a user and that user has a password.
+    user.authenticate is another helper.
+  session[:user_id] = user.id (we want to have a user id)
+
+Now /secret needs to be updated! (the model)
+  @user = User.find_by(id: session[:user_id])
+  if @user
+   render :show
+  else
+   redirect_to '/login'
+
+  This is changes it so the session works by the user not the password. You can only see secret if you are logged in or still logged in!
+
+Show page - 
+ <h2> hello, <%=user.username %></h2>
+ So that we can see this actually work!
+
+By this point the only way we can create a username is through our seeds.
 
