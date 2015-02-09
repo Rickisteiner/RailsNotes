@@ -471,3 +471,92 @@ Show page -
 
 By this point the only way we can create a username is through our seeds.
 
+Rails Part Two:
+
+Bootstrap and SPA/API
+
+Asset Pipeline -
+
+1. All of our personal code goes into app/assets - stylesheers, javascript.
+   But what about the parts other people make? vender/assets - bootstrap, backbone.
+     All these directories alread exist.
+     This is just another level of organization.
+2. This combines all these files into one so that it condenses all the files that are sent to the server at a time. It minimizes those files as well. This will happen for us.
+
+Adding Bootstrap -
+
+1. Download Bootstrap.
+2. You need to add the bootstrap.js, bootstrap-theme, and the cSS files to the vender/assets. Javascript goes in vendor/assets/javascript and the rest go to /stylsheets.
+3. You will need to require these files in app/assets/stylesheets/application.css
+    require bootstrap
+    require bootstrap-theme
+      we do the same with JS and Jquery
+    Make sure to require bootstrap in the JS file ass well.
+
+SPA in Rails
+
+- This is based of the SPA Pets app we did in JS.
+
+1. Start of the same way - a new project and generate a model.
+    We have name and pet_type
+
+2. Add some pets in your seeds file.
+
+3. We must migrate before we seed.
+
+4. Don't forget to rake routes!
+   reasources :pets
+   and add an index root - pets#index
+
+5. Controller time !
+
+     protect_from_forgery with: :null_session
+       this is important when dealing with APIs.
+         This is the work around to allow us to do CRUD routes and actually make our API.
+     
+     INDEX - 
+       def index
+         @pets = Pet.all
+         respond_to do |format|
+           format.html { render :index }
+           formar.json { render json: @pets }
+             got to pets.json and BAM.
+
+         Based on the request we need to be able to send HTML or JSON and rails can handle both. So we basically just set up a home page and the first part of our API right here.
+    
+    SHOW -
+     def show
+       @pet = find by id 
+         if @pet
+          render json: @pet
+         else
+          render status: 400, nothing: true
+            If there is no pet, throw an error basically.
+            nothing: true means we are not rendering anything.
+              You can use httpart in the console to see our objects laid out all nicely and play around a little. Like select a pet ect. We get back a bunch of arrays of our pets.
+
+        You can also set it up to restrict to JSON object to only give you the fields you want. ID, name, and type. Because we don't really need the timestamp ect.
+          pet_json = {id: @pet.id, name: @pet.name, type: @pet_type}
+
+    All the routes are the same as the ones we have been using with the inclusion of JSON and the error.
+
+6. By using httparty in the console we can add a pet and use .post will actually put it into the db. So it's basically like saving it.
+     We can also update and all the rest from here.
+
+VIEWS
+
+1. Just copy in the HTML we used before.
+
+ASSETS 
+
+1. We need to add in JavaScript.
+2. At the top - document.addEventListener('DOMContentLoaded', function(){
+  all the code we used before goes in here.
+  some of the routes changed a bit.
+  the methods for delete changed a little bit as well
+    this is all in the repo
+})
+
+- Basically all we are doing is sending JSON back and forth. Not really rendering anything.
+- Keep in mind every time we do anything, it will be working with the db.
+
